@@ -62,32 +62,30 @@ class Game:
                     pos_x = self.active_piece.position_x + x
                     self.grid[pos_y][pos_x] = 1
 
-    def can_move_down(self):
+    def _can_move(self, direction):
         for y, row in enumerate(self.active_piece.shape):
             for x, field in enumerate(row):
                 if field == 1:
                     pos_y = self.active_piece.position_y + y
                     pos_x = self.active_piece.position_x + x
-                    if pos_y == self.rows - 1 or self.grid[pos_y + 1][pos_x] > 0:
+                    if direction(pos_y, pos_x):
                         return False
         return True
+
+    def can_move_down(self):
+        def down(pos_y, pos_x):
+            return pos_y == self.rows - 1 or self.grid[pos_y + 1][pos_x] > 0
+
+        return self._can_move(down)
 
     def can_move_left(self):
-        for y, row in enumerate(self.active_piece.shape):
-            for x, field in enumerate(row):
-                if field == 1:
-                    pos_y = self.active_piece.position_y + y
-                    pos_x = self.active_piece.position_x + x
-                    if pos_x == 0 or self.grid[pos_y][pos_x - 1] > 0:
-                        return False
-        return True
+        def down(pos_y, pos_x):
+            return pos_x == 0 or self.grid[pos_y][pos_x - 1] > 0
+
+        return self._can_move(down)
 
     def can_move_right(self):
-        for y, row in enumerate(self.active_piece.shape):
-            for x, field in enumerate(row):
-                if field == 1:
-                    pos_y = self.active_piece.position_y + y
-                    pos_x = self.active_piece.position_x + x
-                    if pos_x == self.cols - 1 or self.grid[pos_y][pos_x + 1] > 0:
-                        return False
-        return True
+        def down(pos_y, pos_x):
+            return pos_x == self.cols - 1 or self.grid[pos_y][pos_x + 1] > 0
+
+        return self._can_move(down)
