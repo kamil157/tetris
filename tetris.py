@@ -21,6 +21,9 @@ class Game:
         self.grid = [self.cols * [0] for _ in range(self.rows)]
         self.active_piece = Piece()
         self.game_over = False
+        self.game_time = 0
+        self.gravity = 60
+        self.next_gravity = self.game_time + self.gravity
 
     def get_grid(self):
         return self.grid
@@ -28,9 +31,18 @@ class Game:
     def is_game_over(self):
         return self.game_over
 
-    def tick(self):
-        if self.active_piece.position_y <= 15 and not self.should_land():  # TODO invisible border?
+    def tick(self, key):
+        self.game_time += 1
+        if key == 'KEY_LEFT':
+            self.active_piece.position_x -= 1
+        if key == 'KEY_RIGHT':
+            self.active_piece.position_x += 1
+        if key == 'KEY_DOWN':
             self.active_piece.position_y += 1
+        if self.active_piece.position_y <= 15 and not self.should_land():  # TODO invisible border?
+            if self.game_time == self.next_gravity:
+                self.active_piece.position_y += 1
+                self.next_gravity += self.gravity
         else:
             self.land_piece()
             if any(self.grid[0]):
