@@ -34,16 +34,21 @@ class Game:
     def tick(self, key):
         self.game_time += 1
         if key == 'KEY_LEFT':
-            self.active_piece.position_x -= 1
-        if key == 'KEY_RIGHT':
-            self.active_piece.position_x += 1
-        if key == 'KEY_DOWN':
-            self.active_piece.position_y += 1
-        if self.active_piece.position_y <= 15 and not self.should_land():  # TODO invisible border?
-            if self.game_time == self.next_gravity:
+            if self.can_move_left():
+                self.active_piece.position_x -= 1
+        elif key == 'KEY_RIGHT':
+            if self.can_move_right():
+                self.active_piece.position_x += 1
+        elif key == 'KEY_DOWN':
+            if self.can_move_down():
+                self.active_piece.position_y += 1
+
+        # TODO magic 15
+        if self.active_piece.position_y <= 15 and self.can_move_down():
+            if self.game_time >= self.next_gravity:  # is == enough?
                 self.active_piece.position_y += 1
                 self.next_gravity += self.gravity
-        else:
+        else:  # sliding doesn't work sometimes
             self.land_piece()
             if any(self.grid[0]):
                 self.game_over = True
@@ -57,12 +62,32 @@ class Game:
                     pos_x = self.active_piece.position_x + x
                     self.grid[pos_y][pos_x] = 1
 
-    def should_land(self):
+    def can_move_down(self):
         for y, row in enumerate(self.active_piece.shape):
             for x, field in enumerate(row):
                 if field == 1:
                     pos_y = self.active_piece.position_y + y
                     pos_x = self.active_piece.position_x + x
-                    if pos_y + 1 < self.rows and self.grid[pos_y + 1][pos_x] > 0:
-                        return True
-        return False
+                    if pos_y == self.rows - 1 or self.grid[pos_y + 1][pos_x] > 0:
+                        return False
+        return True
+
+    def can_move_left(self):
+        for y, row in enumerate(self.active_piece.shape):
+            for x, field in enumerate(row):
+                if field == 1:
+                    pos_y = self.active_piece.position_y + y
+                    pos_x = self.active_piece.position_x + x
+                    if pos_x == 0 or self.grid[pos_y][pos_x - 1] > 0:
+                        return False
+        return True
+
+    def can_move_right(self):
+        for y, row in enumerate(self.active_piece.shape):
+            for x, field in enumerate(row):
+                if field == 1:
+                    pos_y = self.active_piece.position_y + y
+                    pos_x = self.active_piece.position_x + x
+                    if pos_x == self.cols - 1 or self.grid[pos_y][pos_x + 1] > 0:
+                        return False
+        return True
