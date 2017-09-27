@@ -18,7 +18,7 @@ def render(game, stdscr, fps_counter, key):
 
     # draw active tetromino
     tetromino = game.active_tetromino
-    for y, row in enumerate(tetromino.shape):
+    for y, row in enumerate(tetromino.current_shape):
         for x, field in enumerate(row):
             pos_x = x + tetromino.position_x
             pos_y = y + tetromino.position_y

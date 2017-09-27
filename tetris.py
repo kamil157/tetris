@@ -51,7 +51,7 @@ class Game:
 
     def land_tetromino(self):
         # can this be in Tetromino iterator?
-        for y, row in enumerate(self.active_tetromino.shape):
+        for y, row in enumerate(self.active_tetromino.current_shape):
             for x, field in enumerate(row):
                 if field == 1:
                     pos_y = self.active_tetromino.position_y + y
@@ -60,7 +60,7 @@ class Game:
                         self.grid[pos_y][pos_x] = self.active_tetromino.color
 
     def _can_move(self, direction):
-        for y, row in enumerate(self.active_tetromino.shape):
+        for y, row in enumerate(self.active_tetromino.current_shape):
             for x, field in enumerate(row):
                 if field == 1:
                     pos_y = self.active_tetromino.position_y + y
