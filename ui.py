@@ -7,28 +7,29 @@ from tetris import Game
 
 def render(game, stdscr, fps_counter, key):
     stdscr.clear()
-
+    block_width = 2
     grid = game.get_grid()
 
-    # draw landed pieces
+    # draw grid
     for y, row in enumerate(grid):
         for x, color in enumerate(row):
-            stdscr.addstr(y, 2 * x, ' ', curses.color_pair(color + 1))
-            stdscr.addstr(y, 2 * x + 1, ' ', curses.color_pair(color + 1))
+            for i in range(block_width):
+                stdscr.addstr(y, 2 * x + i, ' ', curses.color_pair(color + 1))
 
     # draw active piece
     piece = game.active_piece
     for y, row in enumerate(piece.shape):
         for x, field in enumerate(row):
-            # stdscr.addstr(0, 20, str(y) + str(x))
             pos_x = x + piece.position_x
             pos_y = y + piece.position_y
             if field == 1 and pos_y >= 0:
-                stdscr.addstr(pos_y, 2 * pos_x, ' ', curses.color_pair(piece.color + 1))
-                stdscr.addstr(pos_y, 2 * pos_x + 1, ' ', curses.color_pair(piece.color + 1))
+                for i in range(block_width):
+                    stdscr.addstr(pos_y, 2 * pos_x + i, ' ', curses.color_pair(piece.color + 1))
 
-    stdscr.addstr(0, 20, "FPS: {}".format(fps_counter))
+    stdscr.addstr(0, 20, "Fps: {}".format(fps_counter))
     stdscr.addstr(1, 20, "Key: {}".format(key))
+    stdscr.addstr(2, 20, "Score: {}".format(game.get_score()))
+
     stdscr.refresh()
 
 

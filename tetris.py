@@ -1,9 +1,9 @@
 class Piece:
     shape = [
-        [0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0],
-        [0, 0, 1, 1, 0],
-        [0, 0, 1, 1, 0],
+        [0, 0, 1, 0, 0],
+        [0, 0, 1, 0, 0],
+        [0, 0, 1, 0, 0],
+        [0, 0, 1, 0, 0],
         [0, 0, 0, 0, 0],
     ]
     initial_position_x = 3
@@ -24,9 +24,13 @@ class Game:
         self.game_time = 0
         self.gravity = 60
         self.next_gravity = self.game_time + self.gravity
+        self.score = 0
 
     def get_grid(self):
         return self.grid
+
+    def get_score(self):
+        return self.score
 
     def is_game_over(self):
         return self.game_over
@@ -43,8 +47,7 @@ class Game:
             if self.can_move_down():
                 self.active_piece.position_y += 1
 
-        # TODO magic 15
-        if self.active_piece.position_y <= 15 and self.can_move_down():
+        if self.can_move_down():
             if self.game_time >= self.next_gravity:  # is == enough?
                 self.active_piece.position_y += 1
                 self.next_gravity += self.gravity
@@ -52,9 +55,11 @@ class Game:
             self.land_piece()
             if any(self.grid[0]):
                 self.game_over = True
+            self.clear_lines()
             self.active_piece = Piece()
 
     def land_piece(self):
+        # can this be in Piece iterator?
         for y, row in enumerate(self.active_piece.shape):
             for x, field in enumerate(row):
                 if field == 1:
@@ -72,9 +77,10 @@ class Game:
                         return False
         return True
 
+# TODO negated - where should the negation be
     def can_move_down(self):
         def down(pos_y, pos_x):
-            return pos_y == self.rows - 1 or self.grid[pos_y + 1][pos_x] > 0
+            return pos_y == self.rows - 1 or pos_y >= 0 and self.grid[pos_y + 1][pos_x] > 0
 
         return self._can_move(down)
 
@@ -89,3 +95,13 @@ class Game:
             return pos_x == self.cols - 1 or self.grid[pos_y][pos_x + 1] > 0
 
         return self._can_move(down)
+
+    def clear_lines(self):
+        lines_cleared = 0
+        for y, row in enumerate(self.grid):
+            if all(row):
+                lines_cleared += 1
+                for x, field in enumerate(row):
+                    self.grid[y][x] = 0
+        self.score += 1000 * lines_cleared * lines_cleared
+        # TODO shift lines
