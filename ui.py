@@ -16,15 +16,15 @@ def render(game, stdscr, fps_counter, key):
             for i in range(block_width):
                 stdscr.addstr(y, 2 * x + i, ' ', curses.color_pair(color + 1))
 
-    # draw active piece
-    piece = game.active_piece
-    for y, row in enumerate(piece.shape):
+    # draw active tetromino
+    tetromino = game.active_tetromino
+    for y, row in enumerate(tetromino.shape):
         for x, field in enumerate(row):
-            pos_x = x + piece.position_x
-            pos_y = y + piece.position_y
+            pos_x = x + tetromino.position_x
+            pos_y = y + tetromino.position_y
             if field == 1 and pos_y >= 0:
                 for i in range(block_width):
-                    stdscr.addstr(pos_y, 2 * pos_x + i, ' ', curses.color_pair(piece.color + 1))
+                    stdscr.addstr(pos_y, 2 * pos_x + i, ' ', curses.color_pair(tetromino.color + 1))
 
     stdscr.addstr(0, 20, "Fps: {}".format(fps_counter))
     stdscr.addstr(1, 20, "Key: {}".format(key))
@@ -34,8 +34,16 @@ def render(game, stdscr, fps_counter, key):
 
 
 def main(stdscr):
+    # TODO can i use better colors?
     curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE)
     curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_BLUE)
+    curses.init_pair(3, curses.COLOR_WHITE, curses.COLOR_RED)
+    curses.init_pair(4, curses.COLOR_WHITE, curses.COLOR_GREEN)
+    curses.init_pair(5, curses.COLOR_WHITE, curses.COLOR_YELLOW)
+    curses.init_pair(6, curses.COLOR_WHITE, curses.COLOR_CYAN)
+    curses.init_pair(7, curses.COLOR_WHITE, curses.COLOR_MAGENTA)
+    curses.init_pair(8, curses.COLOR_WHITE, curses.COLOR_BLACK)
+
     curses.curs_set(False)
     game = Game()
 

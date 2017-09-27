@@ -1,17 +1,4 @@
-class Piece:
-    shape = [
-        [0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0],
-        [0, 0, 1, 1, 0],
-        [0, 0, 1, 1, 0],
-        [0, 0, 0, 0, 0],
-    ]
-    initial_position_x = 3
-    initial_position_y = -3
-    color = 1
-
-    position_y = initial_position_y
-    position_x = initial_position_x
+from tetromino import new_tetromino
 
 
 class Game:
@@ -19,7 +6,7 @@ class Game:
         self.rows = 20
         self.cols = 10
         self.grid = [self.cols * [0] for _ in range(self.rows)]
-        self.active_piece = Piece()
+        self.active_tetromino = new_tetromino()
         self.game_over = False
         self.game_time = 0
         self.gravity = 60
@@ -37,43 +24,45 @@ class Game:
 
     def tick(self, key):
         self.game_time += 1
-        # TODO Can't control piece if it's not fully visible - only after a piece has landed
+        # TODO Can't control tetromino if it's not fully visible - only after a tetromino has landed
         if key == 'KEY_LEFT':
             if self.can_move_left():
-                self.active_piece.position_x -= 1
+                self.active_tetromino.position_x -= 1
         elif key == 'KEY_RIGHT':
             if self.can_move_right():
-                self.active_piece.position_x += 1
+                self.active_tetromino.position_x += 1
         elif key == 'KEY_DOWN':
             if self.can_move_down():
-                self.active_piece.position_y += 1
+                self.active_tetromino.position_y += 1
 
         if self.can_move_down():
             if self.game_time >= self.next_gravity:  # is == enough?
-                self.active_piece.position_y += 1
+                self.active_tetromino.position_y += 1
                 self.next_gravity += self.gravity
         else:  # sliding doesn't work sometimes
-            self.land_piece()
+            self.land_tetromino()
             if any(self.grid[0]):
                 self.game_over = True
+                return
             self.clear_lines()
-            self.active_piece = Piece()
+            self.active_tetromino = new_tetromino()
 
-    def land_piece(self):
-        # can this be in Piece iterator?
-        for y, row in enumerate(self.active_piece.shape):
+    def land_tetromino(self):
+        # can this be in Tetromino iterator?
+        for y, row in enumerate(self.active_tetromino.shape):
             for x, field in enumerate(row):
                 if field == 1:
-                    pos_y = self.active_piece.position_y + y
-                    pos_x = self.active_piece.position_x + x
-                    self.grid[pos_y][pos_x] = 1
+                    pos_y = self.active_tetromino.position_y + y
+                    pos_x = self.active_tetromino.position_x + x
+                    if pos_y >= 0:
+                        self.grid[pos_y][pos_x] = self.active_tetromino.color
 
     def _can_move(self, direction):
-        for y, row in enumerate(self.active_piece.shape):
+        for y, row in enumerate(self.active_tetromino.shape):
             for x, field in enumerate(row):
                 if field == 1:
-                    pos_y = self.active_piece.position_y + y
-                    pos_x = self.active_piece.position_x + x
+                    pos_y = self.active_tetromino.position_y + y
+                    pos_x = self.active_tetromino.position_x + x
                     if direction(pos_y, pos_x):
                         return False
         return True
