@@ -1,9 +1,9 @@
 class Piece:
     shape = [
-        [0, 0, 1, 0, 0],
-        [0, 0, 1, 0, 0],
-        [0, 0, 1, 0, 0],
-        [0, 0, 1, 0, 0],
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0],
+        [0, 0, 1, 1, 0],
+        [0, 0, 1, 1, 0],
         [0, 0, 0, 0, 0],
     ]
     initial_position_x = 3
@@ -37,6 +37,7 @@ class Game:
 
     def tick(self, key):
         self.game_time += 1
+        # TODO Can't control piece if it's not fully visible - only after a piece has landed
         if key == 'KEY_LEFT':
             if self.can_move_left():
                 self.active_piece.position_x -= 1
@@ -77,7 +78,7 @@ class Game:
                         return False
         return True
 
-# TODO negated - where should the negation be
+    # TODO negated - where should the negation be
     def can_move_down(self):
         def down(pos_y, pos_x):
             return pos_y == self.rows - 1 or pos_y >= 0 and self.grid[pos_y + 1][pos_x] > 0
@@ -97,11 +98,13 @@ class Game:
         return self._can_move(down)
 
     def clear_lines(self):
-        lines_cleared = 0
-        for y, row in enumerate(self.grid):
-            if all(row):
-                lines_cleared += 1
-                for x, field in enumerate(row):
-                    self.grid[y][x] = 0
-        self.score += 1000 * lines_cleared * lines_cleared
-        # TODO shift lines
+        lines_cleared = [y for y, row in enumerate(self.grid) if all(row)]
+        if not lines_cleared:
+            return
+
+        self.score += 1000 * len(lines_cleared) * len(lines_cleared)
+
+        # Shift lines
+        self.grid = [self.cols * [0] for _ in range(len(lines_cleared))] \
+                    + self.grid[:min(lines_cleared)] \
+                    + self.grid[max(lines_cleared) + 1:]
