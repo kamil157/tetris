@@ -34,6 +34,8 @@ class Game:
         elif key == 'KEY_DOWN':
             if self.can_move_down():
                 self.active_tetromino.position_y += 1
+        elif key == 'KEY_UP':
+            self.active_tetromino.rotate()
 
         if self.can_move_down():
             if self.game_time >= self.next_gravity:  # is == enough?
