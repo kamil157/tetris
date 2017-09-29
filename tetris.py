@@ -1,4 +1,6 @@
-from tetromino import new_tetromino
+from copy import copy
+
+from tetromino import new_tetromino, Tetromino
 
 
 class Game:
@@ -6,7 +8,7 @@ class Game:
         self.rows = 20
         self.cols = 10
         self.grid = [self.cols * [0] for _ in range(self.rows)]
-        self.active_tetromino = new_tetromino()
+        self.active_tetromino = new_tetromino()  # type: Tetromino
         self.game_over = False
         self.game_time = 0
         self.gravity = 60
@@ -35,7 +37,8 @@ class Game:
             if self.can_move_down():
                 self.active_tetromino.position_y += 1
         elif key == 'KEY_UP':
-            self.active_tetromino.rotate()
+            if self.can_rotate():
+                self.active_tetromino.rotate()
 
         if self.can_move_down():
             if self.game_time >= self.next_gravity:  # is == enough?
@@ -59,34 +62,43 @@ class Game:
                     if pos_y >= 0:
                         self.grid[pos_y][pos_x] = self.active_tetromino.color
 
-    def _can_move(self, direction):
-        for y, row in enumerate(self.active_tetromino.current_shape):
+    def _can_move(self, direction, tetromino):
+        for y, row in enumerate(tetromino.current_shape):
             for x, field in enumerate(row):
                 if field == 1:
-                    pos_y = self.active_tetromino.position_y + y
-                    pos_x = self.active_tetromino.position_x + x
+                    pos_y = tetromino.position_y + y
+                    pos_x = tetromino.position_x + x
                     if direction(pos_y, pos_x):
                         return False
         return True
 
     # TODO negated - where should the negation be
+    def can_rotate(self):
+        def rotate(pos_y, pos_x):
+            return pos_x < 0 or pos_x >= self.cols or self.grid[pos_y][pos_x] > 0
+
+        clone = copy(self.active_tetromino)  # type: Tetromino
+        clone.rotate()
+
+        return self._can_move(rotate, clone)
+
     def can_move_down(self):
         def down(pos_y, pos_x):
             return pos_y == self.rows - 1 or pos_y >= 0 and self.grid[pos_y + 1][pos_x] > 0
 
-        return self._can_move(down)
+        return self._can_move(down, self.active_tetromino)
 
     def can_move_left(self):
         def down(pos_y, pos_x):
             return pos_x == 0 or self.grid[pos_y][pos_x - 1] > 0
 
-        return self._can_move(down)
+        return self._can_move(down, self.active_tetromino)
 
     def can_move_right(self):
         def down(pos_y, pos_x):
             return pos_x == self.cols - 1 or self.grid[pos_y][pos_x + 1] > 0
 
-        return self._can_move(down)
+        return self._can_move(down, self.active_tetromino)
 
     def clear_lines(self):
         lines_cleared = [y for y, row in enumerate(self.grid) if all(row)]

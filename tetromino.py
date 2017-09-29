@@ -15,8 +15,6 @@ class Tetromino:
         self.rotation_index = (self.rotation_index + 1) % len(self.shapes)
         self.current_shape = self.shapes[self.rotation_index]
 
-        # TODO wall kick crashes
-
 
 class TetrominoFactory:
     def __init__(self):
