@@ -1,6 +1,6 @@
-from copy import copy
+from copy import deepcopy
 
-from tetromino import new_tetromino, Tetromino
+from tetromino import Tetromino, TetrominoFactory
 
 
 class Game:
@@ -8,7 +8,8 @@ class Game:
         self.rows = 20
         self.cols = 10
         self.grid = [self.cols * [0] for _ in range(self.rows)]
-        self.active_tetromino = new_tetromino()  # type: Tetromino
+        self.tetromino_factory = TetrominoFactory()
+        self.active_tetromino = self.tetromino_factory.create()  # type: Tetromino
         self.game_over = False
         self.game_time = 0
         self.gravity = 60
@@ -28,7 +29,7 @@ class Game:
         self.game_time += 1
         self.handle_input(key)
 
-        clone = copy(self.active_tetromino)  # type: Tetromino
+        clone = deepcopy(self.active_tetromino)  # type: Tetromino
         clone.position_y += 1
         if self._can_move(clone):
             if self.game_time >= self.next_gravity:  # is == enough?
@@ -40,11 +41,11 @@ class Game:
                 self.game_over = True
                 return
             self.clear_lines()
-            self.active_tetromino = new_tetromino()
+            self.active_tetromino = self.tetromino_factory.create()
 
     def handle_input(self, key):
         # TODO Can't control tetromino if it's not fully visible - only after a tetromino has landed
-        tetromino_clone = copy(self.active_tetromino)  # type: Tetromino
+        tetromino_clone = deepcopy(self.active_tetromino)  # type: Tetromino
         if key == 'KEY_LEFT':
             tetromino_clone.position_x -= 1
         elif key == 'KEY_RIGHT':
@@ -52,6 +53,7 @@ class Game:
         elif key == 'KEY_DOWN':
             tetromino_clone.position_y += 1
         elif key == 'KEY_UP':
+            # TODO wall kick
             tetromino_clone.rotate()
         if self._can_move(tetromino_clone):
             self.active_tetromino = tetromino_clone
