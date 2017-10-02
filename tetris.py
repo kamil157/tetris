@@ -90,9 +90,13 @@ class Game:
         if not lines_cleared:
             return
 
-        self.score += 1000 * len(lines_cleared) * len(lines_cleared)
+        self.score += self.line_score(len(lines_cleared))
 
         # Shift lines
         self.grid = [self.cols * [0] for _ in range(len(lines_cleared))] \
                     + self.grid[:min(lines_cleared)] \
                     + self.grid[max(lines_cleared) + 1:]
+
+    def line_score(self, line_count):
+        score_table = [100, 300, 500, 800]
+        return score_table[line_count - 1]
