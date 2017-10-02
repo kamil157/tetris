@@ -64,8 +64,15 @@ class TetrominoFactory:
 
         self.bag = []
 
-    def create(self):
+    def refill_bag(self):
         if not self.bag:
             self.bag = deepcopy(self.tetrominos)
             shuffle(self.bag)
+
+    def create(self):
+        self.refill_bag()
         return self.bag.pop()
+
+    def next(self):
+        self.refill_bag()
+        return self.bag[-1]

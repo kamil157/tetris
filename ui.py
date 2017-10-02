@@ -5,6 +5,16 @@ from time import sleep, time
 from tetris import Game
 
 
+def render_tetromino(stdscr, tetromino, block_width, start_y, start_x):
+    for y, row in enumerate(tetromino.shape):
+        for x, field in enumerate(row):
+            pos_x = x + start_x
+            pos_y = y + start_y
+            if field == 1 and pos_y >= 0:
+                for i in range(block_width):
+                    stdscr.addstr(pos_y, 2 * pos_x + i, ' ', curses.color_pair(tetromino.color + 1))
+
+
 def render(game, stdscr, fps_counter, key):
     stdscr.clear()
     block_width = 2
@@ -18,17 +28,13 @@ def render(game, stdscr, fps_counter, key):
 
     # draw active tetromino
     tetromino = game.active_tetromino
-    for y, row in enumerate(tetromino.shape):
-        for x, field in enumerate(row):
-            pos_x = x + tetromino.position_x
-            pos_y = y + tetromino.position_y
-            if field == 1 and pos_y >= 0:
-                for i in range(block_width):
-                    stdscr.addstr(pos_y, 2 * pos_x + i, ' ', curses.color_pair(tetromino.color + 1))
+    render_tetromino(stdscr, tetromino, block_width, tetromino.position_y, tetromino.position_x)
 
     stdscr.addstr(0, 20, "Fps: {}".format(fps_counter))
     stdscr.addstr(1, 20, "Key: {}".format(key))
     stdscr.addstr(2, 20, "Score: {}".format(game.get_score()))
+    stdscr.addstr(3, 20, "Next:".format(game.get_score()))
+    render_tetromino(stdscr, game.next_tetromino, block_width, 4, 10)
 
     stdscr.refresh()
 
@@ -37,20 +43,19 @@ def main(stdscr):
     COLOR_ORANGE = 166
 
     curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE)
-    curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_CYAN)       # I
-    curses.init_pair(3, curses.COLOR_WHITE, curses.COLOR_YELLOW)     # O
-    curses.init_pair(4, curses.COLOR_WHITE, curses.COLOR_MAGENTA)    # T
-    curses.init_pair(5, curses.COLOR_WHITE, curses.COLOR_BLUE)       # J
+    curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_CYAN)  # I
+    curses.init_pair(3, curses.COLOR_WHITE, curses.COLOR_YELLOW)  # O
+    curses.init_pair(4, curses.COLOR_WHITE, curses.COLOR_MAGENTA)  # T
+    curses.init_pair(5, curses.COLOR_WHITE, curses.COLOR_BLUE)  # J
 
-    curses.init_pair(7, curses.COLOR_WHITE, curses.COLOR_GREEN)      # S
-    curses.init_pair(8, curses.COLOR_WHITE, curses.COLOR_RED)        # Z
+    curses.init_pair(7, curses.COLOR_WHITE, curses.COLOR_GREEN)  # S
+    curses.init_pair(8, curses.COLOR_WHITE, curses.COLOR_RED)  # Z
 
     try:
-        curses.init_pair(6, curses.COLOR_WHITE, COLOR_ORANGE)        # L
+        curses.init_pair(6, curses.COLOR_WHITE, COLOR_ORANGE)  # L
 
     except curses.error:
         curses.init_pair(6, curses.COLOR_WHITE, curses.COLOR_BLACK)  # L
-
 
     curses.curs_set(False)
     game = Game()

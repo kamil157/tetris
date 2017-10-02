@@ -10,6 +10,7 @@ class Game:
         self.grid = [self.cols * [0] for _ in range(self.rows)]
         self.tetromino_factory = TetrominoFactory()
         self.active_tetromino = self.tetromino_factory.create()  # type: Tetromino
+        self.next_tetromino = self.tetromino_factory.next()  # type: Tetromino
         self.game_over = False
         self.game_time = 0
         self.gravity = 60
@@ -42,6 +43,7 @@ class Game:
                 return
             self.clear_lines()
             self.active_tetromino = self.tetromino_factory.create()
+            self.next_tetromino = self.tetromino_factory.next()
 
     def handle_input(self, key):
         # TODO Can't control tetromino if it's not fully visible - only after a tetromino has landed
