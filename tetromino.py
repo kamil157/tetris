@@ -1,5 +1,5 @@
 from copy import copy
-from random import choice
+from random import choice, shuffle
 
 
 class Tetromino:
@@ -62,10 +62,15 @@ class TetrominoFactory:
             I, O, T, J, L, S, Z
         ]
 
+        self.bag = []
+
     def create(self):
-        return copy(choice(self.tetrominos))
+        if not self.bag:
+            self.bag = copy(self.tetrominos)
+            shuffle(self.bag)
+        return self.bag.pop()
 
 
 def new_tetromino():
-    new_tetromino.factory = TetrominoFactory()
+    new_tetromino.factory = getattr(new_tetromino, 'factory', TetrominoFactory())
     return new_tetromino.factory.create()
