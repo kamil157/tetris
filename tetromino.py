@@ -3,136 +3,59 @@ from random import choice
 
 
 class Tetromino:
-    def __init__(self, shapes, position_x, position_y, color):
-        self.rotation_index = 0
-        self.shapes = shapes
-        self.current_shape = shapes[self.rotation_index]
+    def __init__(self, shape, position_x, position_y, color):
+        self.shape = shape
         self.position_y = position_y
         self.position_x = position_x
         self.color = color
 
     def rotate(self):
-        self.rotation_index = (self.rotation_index + 1) % len(self.shapes)
-        self.current_shape = self.shapes[self.rotation_index]
+        self.shape.reverse()
+        self.shape = list(zip(*self.shape))
 
 
 class TetrominoFactory:
     def __init__(self):
         I = Tetromino([
-            [
-                [0, 0, 1, 0],
-                [0, 0, 1, 0],
-                [0, 0, 1, 0],
-                [0, 0, 1, 0],
-            ],
-            [
-                [0, 0, 0, 0],
-                [0, 0, 0, 0],
-                [1, 1, 1, 1],
-                [0, 0, 0, 0],
-            ],
+            [0, 0, 1, 0],
+            [0, 0, 1, 0],
+            [0, 0, 1, 0],
+            [0, 0, 1, 0],
         ], 3, -3, 1)
 
         O = Tetromino([
-            [
-                [1, 1],
-                [1, 1],
-            ],
+            [1, 1],
+            [1, 1],
         ], 3, -3, 2)
 
         T = Tetromino([
-            [
-                [0, 0, 0],
-                [1, 1, 1],
-                [0, 1, 0],
-            ],
-            [
-                [0, 1, 0],
-                [1, 1, 0],
-                [0, 1, 0],
-            ],
-            [
-                [0, 1, 0],
-                [1, 1, 1],
-                [0, 0, 0],
-            ],
-            [
-                [0, 1, 0],
-                [0, 1, 1],
-                [0, 1, 0],
-            ],
+            [0, 0, 0],
+            [1, 1, 1],
+            [0, 1, 0],
         ], 3, -3, 3)
 
         J = Tetromino([
-            [
-                [0, 0, 0],
-                [1, 1, 1],
-                [0, 0, 1],
-            ],
-            [
-                [0, 1, 0],
-                [0, 1, 0],
-                [1, 1, 0],
-            ],
-            [
-                [1, 0, 0],
-                [1, 1, 1],
-                [0, 0, 0],
-            ],
-            [
-                [0, 1, 1],
-                [0, 1, 0],
-                [0, 1, 0],
-            ],
+            [0, 0, 0],
+            [1, 1, 1],
+            [0, 0, 1],
         ], 3, -3, 4)
 
         L = Tetromino([
-            [
-                [0, 0, 0],
-                [1, 1, 1],
-                [1, 0, 0],
-            ],
-            [
-                [1, 1, 0],
-                [0, 1, 0],
-                [0, 1, 0],
-            ],
-            [
-                [0, 0, 1],
-                [1, 1, 1],
-                [0, 0, 0],
-            ],
-            [
-                [0, 1, 0],
-                [0, 1, 0],
-                [0, 1, 1],
-            ],
+            [0, 0, 0],
+            [1, 1, 1],
+            [1, 0, 0],
         ], 3, -3, 5)
 
         S = Tetromino([
-            [
-                [0, 0, 0],
-                [0, 1, 1],
-                [1, 1, 0],
-            ],
-            [
-                [0, 1, 0],
-                [0, 1, 1],
-                [0, 0, 1],
-            ],
+            [0, 0, 0],
+            [0, 1, 1],
+            [1, 1, 0],
         ], 3, -3, 6)
 
         Z = Tetromino([
-            [
-                [0, 0, 0],
-                [1, 1, 0],
-                [0, 1, 1],
-            ],
-            [
-                [0, 0, 1],
-                [0, 1, 1],
-                [0, 1, 0],
-            ],
+            [0, 0, 0],
+            [1, 1, 0],
+            [0, 1, 1],
         ], 3, -3, 7)
 
         self.tetrominos = [
