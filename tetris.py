@@ -61,7 +61,7 @@ class Game:
             self.active_tetromino = tetromino_clone
 
     def land_tetromino(self):
-        # can this be in Tetromino iterator?
+        # TODO can this be in Tetromino iterator?
         for y, row in enumerate(self.active_tetromino.shape):
             for x, field in enumerate(row):
                 if field == 1:
@@ -76,14 +76,15 @@ class Game:
                 if field == 1:
                     pos_y = tetromino.position_y + y
                     pos_x = tetromino.position_x + x
-                    if self.out_of_bounds(pos_y, pos_x):
+                    if not self.can_be_placed(pos_y, pos_x):
                         return False
         return True
 
-    # TODO negated - where should the negation be
-    def out_of_bounds(self, pos_y, pos_x):
-        # TODO technically not out of bounds but collides with other stuff
-        return pos_x < 0 or pos_x >= self.cols or pos_y >= self.rows or pos_y > 0 and self.grid[pos_y][pos_x] > 0
+    def can_be_placed(self, y, x):
+        # Check if position is inside grid and doesn't collide with anything
+        return 0 <= x < self.cols \
+               and y < self.rows \
+               and (y <= 0 or self.grid[y][x] == 0)
 
     def clear_lines(self):
         lines_cleared = [y for y, row in enumerate(self.grid) if all(row)]
