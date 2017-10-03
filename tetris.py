@@ -46,7 +46,6 @@ class Game:
             self.next_tetromino = self.tetromino_factory.next()
 
     def handle_input(self, key):
-        # TODO Can't control tetromino if it's not fully visible - only after a tetromino has landed
         tetromino_clone = deepcopy(self.active_tetromino)  # type: Tetromino
         if key == 'KEY_LEFT':
             tetromino_clone.position_x -= 1
@@ -61,30 +60,15 @@ class Game:
             self.active_tetromino = tetromino_clone
 
     def land_tetromino(self):
-        # TODO can this be in Tetromino iterator?
-        for y, row in enumerate(self.active_tetromino.shape):
-            for x, field in enumerate(row):
-                if field == 1:
-                    pos_y = self.active_tetromino.position_y + y
-                    pos_x = self.active_tetromino.position_x + x
-                    if pos_y >= 0:  # Don't land pieces above grid - they would show up at the bottom
-                        self.grid[pos_y][pos_x] = self.active_tetromino.color
+        for y, x in self.active_tetromino:
+            self.grid[y][x] = self.active_tetromino.color
 
     def _can_move(self, tetromino):
-        for y, row in enumerate(tetromino.shape):
-            for x, field in enumerate(row):
-                if field == 1:
-                    pos_y = tetromino.position_y + y
-                    pos_x = tetromino.position_x + x
-                    if not self.can_be_placed(pos_y, pos_x):
-                        return False
-        return True
+        return all(self.can_be_placed(y, x) for y, x in tetromino)
 
     def can_be_placed(self, y, x):
         # Check if position is inside grid and doesn't collide with anything
-        return 0 <= x < self.cols \
-               and y < self.rows \
-               and (y <= 0 or self.grid[y][x] == 0)
+        return 0 <= x < self.cols and y < self.rows and self.grid[y][x] == 0
 
     def clear_lines(self):
         lines_cleared = [y for y, row in enumerate(self.grid) if all(row)]
