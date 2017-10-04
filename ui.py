@@ -1,5 +1,6 @@
 import curses
 from curses import wrapper
+from functools import wraps
 from time import sleep, time
 
 from copy import deepcopy
@@ -12,13 +13,21 @@ block_width = 2
 def render_tetromino(stdscr, tetromino):
     for y, x in tetromino:
         for i in range(block_width):
-            stdscr.insch(y, 2 * x + i, ' ', curses.color_pair(tetromino.color + 1))
+            stdscr.addstr(y, 2 * x + i, ' ', curses.color_pair(tetromino.color + 1))
 
 
-def render_game(game, game_win):
-    game_win.clear()
+def repaint(func):
+    @wraps(func)
+    def func_wrapper(window, *args, **kwargs):
+        window.clear()
+        func(window, *args, **kwargs)
+        window.refresh()
 
-    # draw grid
+    return func_wrapper
+
+
+@repaint
+def render_game(game_win, game):
     for y, row in enumerate(game.get_grid()):
         for x, color in enumerate(row):
             for i in range(block_width):
@@ -26,12 +35,9 @@ def render_game(game, game_win):
 
     render_tetromino(game_win, game.active_tetromino)
 
-    game_win.refresh()
 
-
-def render_info(game, fps_counter, key, info_win):
-    info_win.clear()
-
+@repaint
+def render_info(info_win, game, fps_counter, key):
     info_win.addstr(0, 0, "Fps: {}".format(fps_counter))
     info_win.addstr(1, 0, "Key: {}".format(key))
     info_win.addstr(2, 0, "Score: {}".format(game.get_score()))
@@ -41,8 +47,6 @@ def render_info(game, fps_counter, key, info_win):
     next_tetromino.position_y = 4
     next_tetromino.position_x = 0
     render_tetromino(info_win, next_tetromino)
-
-    info_win.refresh()
 
 
 def main(stdscr):
@@ -72,7 +76,7 @@ def main(stdscr):
     fps_counter = 0
 
     game_win = curses.newwin(game.rows, 2 * game.cols, 0, 0)
-    info_win = curses.newwin(game.rows, 10, 0, 2 * game.cols)
+    info_win = curses.newwin(game.rows, 20, 0, 2 * game.cols)
 
     while True:
         frame_start = time()
@@ -93,8 +97,8 @@ def main(stdscr):
 
         game.tick(key)
 
-        render_game(game, game_win)
-        render_info(game, fps_counter, key, info_win)
+        render_game(game_win, game)
+        render_info(info_win, game, fps_counter, key)
 
         sleep_time = frame_start + 1 / desired_fps - time()
         if sleep_time > 0:
@@ -112,4 +116,5 @@ def main(stdscr):
         key = stdscr.getch()
 
 
-wrapper(main)
+if __name__ == '__main__':
+    wrapper(main)
