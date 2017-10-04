@@ -60,9 +60,9 @@ class Game:
 
         # TODO wall kick
         elif key == 'z':
-            tetromino_clone.rotate_left()
+            tetromino_clone.rotate_counter_clockwise()
         elif key == 'x':
-            tetromino_clone.rotate_right()
+            tetromino_clone.rotate_clockwise()
         if self._can_move(tetromino_clone):
             self.active_tetromino = tetromino_clone
 

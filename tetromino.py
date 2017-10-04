@@ -9,11 +9,11 @@ class Tetromino:
         self.position_x = position_x
         self.color = color
 
-    def rotate_right(self):
+    def rotate_clockwise(self):
         self.shape.reverse()
         self.shape = list(zip(*self.shape))
 
-    def rotate_left(self):
+    def rotate_counter_clockwise(self):
         self.shape = list(zip(*self.shape))
         self.shape.reverse()
 
