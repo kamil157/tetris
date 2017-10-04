@@ -5,7 +5,7 @@ from time import sleep, time
 
 from copy import deepcopy
 
-from tetris import Game
+from tetris import Game, num_cols, num_rows
 
 block_width = 2
 
@@ -28,7 +28,7 @@ def repaint(func):
 
 @repaint
 def render_game(game_win, game):
-    for y, row in enumerate(game.get_grid()):
+    for y, row in enumerate(game.playfield):
         for x, color in enumerate(row):
             for i in range(block_width):
                 game_win.insch(y, 2 * x + i, ' ', curses.color_pair(color + 1))
@@ -40,7 +40,7 @@ def render_game(game_win, game):
 def render_info(info_win, game, fps_counter, key):
     info_win.addstr(0, 0, "Fps: {}".format(fps_counter))
     info_win.addstr(1, 0, "Key: {}".format(key))
-    info_win.addstr(2, 0, "Score: {}".format(game.get_score()))
+    info_win.addstr(2, 0, "Score: {}".format(game.score))
     info_win.addstr(3, 0, "Next:")
 
     next_tetromino = deepcopy(game.next_tetromino)
@@ -75,8 +75,8 @@ def main(stdscr):
     frames = 0
     fps_counter = 0
 
-    game_win = curses.newwin(game.rows, 2 * game.cols, 0, 0)
-    info_win = curses.newwin(game.rows, 20, 0, 2 * game.cols)
+    game_win = curses.newwin(num_rows, block_width * num_cols, 0, 0)
+    info_win = curses.newwin(num_rows, 20, 0, block_width * num_cols)
 
     while True:
         frame_start = time()
@@ -104,7 +104,7 @@ def main(stdscr):
         if sleep_time > 0:
             sleep(sleep_time)
 
-        if game.is_game_over():
+        if game.is_game_over:
             break
 
     # Game over
