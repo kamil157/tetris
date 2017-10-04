@@ -53,7 +53,7 @@ class Game:
             tetromino_clone.position_x += 1
         elif key == 'KEY_DOWN':
             tetromino_clone.position_y += 1
-        elif key == 'KEY_UP':
+        elif key == ' ':
             while self._can_move(tetromino_clone):
                 tetromino_clone.position_y += 1
             tetromino_clone.position_y -= 1
