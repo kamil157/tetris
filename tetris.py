@@ -53,9 +53,11 @@ class Game:
             tetromino_clone.position_x += 1
         elif key == 'KEY_DOWN':
             tetromino_clone.position_y += 1
-        elif key == 'KEY_UP':
-            # TODO wall kick
-            tetromino_clone.rotate()
+        # TODO wall kick
+        elif key == 'z':
+            tetromino_clone.rotate_left()
+        elif key == 'x':
+            tetromino_clone.rotate_right()
         if self._can_move(tetromino_clone):
             self.active_tetromino = tetromino_clone
 
