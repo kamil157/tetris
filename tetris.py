@@ -22,20 +22,20 @@ class Game:
         self.is_game_over = False  # type: bool
         self.score = 0  # type: int
 
-    def move_to_bottom(self, tetromino):
+    def _move_to_bottom(self, tetromino):
         while self._can_move(tetromino):
             tetromino.position_y += 1
         tetromino.position_y -= 1
 
     def ghost(self):
         clone = deepcopy(self.active_tetromino)  # type: Tetromino
-        self.move_to_bottom(clone)
+        self._move_to_bottom(clone)
         clone.color = 8
         return clone
 
     def tick(self, key):
         self._game_time += 1
-        self.handle_input(key)
+        self._handle_input(key)
 
         clone = deepcopy(self.active_tetromino)  # type: Tetromino
         clone.position_y += 1
@@ -44,15 +44,15 @@ class Game:
                 self.active_tetromino = clone
                 self._next_gravity += self._gravity
         else:
-            self.land_tetromino()
+            self._land_tetromino()
             if any(self.playfield[0]):
                 self.is_game_over = True
                 return
-            self.clear_lines()
+            self._clear_lines()
             self.active_tetromino = self._tetromino_factory.create()
             self.next_tetromino = self._tetromino_factory.next()
 
-    def handle_input(self, key):
+    def _handle_input(self, key):
         tetromino_clone = deepcopy(self.active_tetromino)  # type: Tetromino
         if key == 'KEY_LEFT':
             tetromino_clone.position_x -= 1
@@ -61,7 +61,7 @@ class Game:
         elif key == 'KEY_DOWN':
             tetromino_clone.position_y += 1
         elif key == ' ':
-            self.move_to_bottom(tetromino_clone)
+            self._move_to_bottom(tetromino_clone)
 
         # TODO wall kick
         elif key == 'z':
@@ -71,18 +71,18 @@ class Game:
         if self._can_move(tetromino_clone):
             self.active_tetromino = tetromino_clone
 
-    def land_tetromino(self):
+    def _land_tetromino(self):
         for y, x in self.active_tetromino:
             self.playfield[y][x] = self.active_tetromino.color
 
     def _can_move(self, tetromino):
-        return all(self.can_be_placed(y, x) for y, x in tetromino)
+        return all(self._can_be_placed(y, x) for y, x in tetromino)
 
-    def can_be_placed(self, y, x):
+    def _can_be_placed(self, y, x):
         # Check if position is inside visible playfield and doesn't collide with anything
         return 0 <= x < num_cols and y < num_rows and self.playfield[y][x] == 0
 
-    def clear_lines(self):
+    def _clear_lines(self):
         lines_cleared = [y for y, row in enumerate(self.playfield) if all(row)]
         if not lines_cleared:
             return
