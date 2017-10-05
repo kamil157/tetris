@@ -12,11 +12,12 @@ block_width = 2
 
 def render_tetromino(stdscr, tetromino):
     for y, x in tetromino:
-        for i in range(block_width):
-            try:
-                stdscr.addstr(y, 2 * x + i, ' ', curses.color_pair(tetromino.color + 1))
-            except curses.error:
-                pass  # ignore errors, caused by drawing in the last tile or by bugs
+        if y >= 0:
+            for i in range(block_width):
+                try:
+                    stdscr.addstr(y, 2 * x + i, ' ', curses.color_pair(tetromino.color + 1))
+                except curses.error:
+                    pass  # ignore errors, caused by drawing in the last tile or by bugs
 
 
 def repaint(func):

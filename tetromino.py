@@ -21,8 +21,7 @@ class Tetromino:
         return ((y + self.position_y, x + self.position_x)
                 for y, row in enumerate(self.shape)
                 for x, field in enumerate(row)
-                if field == 1
-                if y + self.position_y >= 0)
+                if field == 1)
 
 
 class TetrominoFactory:

@@ -81,7 +81,7 @@ class Game:
 
     def _can_be_placed(self, y, x):
         # Check if position is inside visible playfield and doesn't collide with anything
-        return 0 <= x < num_cols and y < num_rows and self.playfield[y][x] == 0
+        return 0 <= x < num_cols and y < num_rows and (y < 0 or self.playfield[y][x] == 0)
 
     def _clear_lines(self):
         lines_cleared = [y for y, row in enumerate(self.playfield) if all(row)]
