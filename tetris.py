@@ -15,6 +15,8 @@ class Game:
         self._gravity_delay = 60
         self._gravity = 30  # type: int
         self._gravity_countdown = self._gravity + self._gravity_delay  # type: int
+        self._lock_delay = 30
+        self._lock_countdown = 0
 
         self.playfield = [num_cols * [0] for _ in range(num_rows)]  # type: Playfield
         self.active_tetromino = self._tetromino_factory.create()  # type: Tetromino
@@ -35,6 +37,7 @@ class Game:
 
     def tick(self, key):
         self._gravity_countdown -= 1
+        self._lock_countdown -= 1
         self._handle_input(key)
 
         clone = deepcopy(self.active_tetromino)  # type: Tetromino
@@ -44,6 +47,10 @@ class Game:
                 self.active_tetromino = clone
                 self._gravity_countdown = self._gravity
         else:
+            if self._lock_countdown < 0:
+                self._lock_countdown = self._lock_delay
+
+        if self._lock_countdown == 0:
             self._land_tetromino()
             if any(self.playfield[0]):
                 self.is_game_over = True
@@ -52,6 +59,15 @@ class Game:
             self.active_tetromino = self._tetromino_factory.create()
             self.next_tetromino = self._tetromino_factory.next()
             self._gravity_countdown = self._gravity + self._gravity_delay
+
+    def _refresh_lock(self):
+        clone = deepcopy(self.active_tetromino)  # type: Tetromino
+        clone.position_y += 1
+        if self._can_move(clone):
+            self._lock_countdown = -1
+        else:
+            self._lock_countdown = self._lock_delay
+            self._gravity_countdown = self._gravity
 
     def _handle_input(self, key):
         tetromino_clone = deepcopy(self.active_tetromino)  # type: Tetromino
@@ -70,6 +86,7 @@ class Game:
             self.active_tetromino = tetromino_clone
         else:
             self._wall_kick(tetromino_clone)
+            self._refresh_lock()
 
     def _handle_shift(self, key, tetromino_clone):
         if key == 'KEY_LEFT':
@@ -80,6 +97,7 @@ class Game:
             return
         if self._can_move(tetromino_clone):
             self.active_tetromino = tetromino_clone
+            self._refresh_lock()
 
     def _handle_drop(self, key, tetromino_clone):
         if key == 'KEY_DOWN':
@@ -94,6 +112,7 @@ class Game:
                 self.active_tetromino = tetromino_clone
                 end = tetromino_clone.position_y
                 self.score += 2 * (end - start)
+                self._lock_countdown = 0
 
     def _wall_kick(self, tetromino_clone):
         tetromino_clone.position_x += 1

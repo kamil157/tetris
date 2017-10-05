@@ -54,6 +54,8 @@ def render_info(info_win, game, fps_counter, key):
     next_tetromino.position_x = 0
     render_tetromino(info_win, next_tetromino)
 
+    info_win.addstr(6, 0, "Lock: {}".format(game._lock_countdown))
+
 
 def main(stdscr):
     curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE)
