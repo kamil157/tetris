@@ -103,7 +103,8 @@ class Game:
 
     def _land_tetromino(self):
         for y, x in self.active_tetromino:
-            self.playfield[y][x] = self.active_tetromino.color
+            if y >= 0:
+                self.playfield[y][x] = self.active_tetromino.color
 
     def _can_move(self, tetromino):
         return all(self._can_be_placed(y, x) for y, x in tetromino)
