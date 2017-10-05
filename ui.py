@@ -87,6 +87,7 @@ def main(stdscr):
     game_win = curses.newwin(num_rows, block_width * num_cols, 0, 0)
     info_win = curses.newwin(num_rows, 20, 0, block_width * num_cols)
 
+    pause = False
     while True:
         frame_start = time()
 
@@ -97,6 +98,9 @@ def main(stdscr):
         except curses.error:
             pass
 
+        if key == 'p':
+            pause = not pause
+
         # Update fps counter
         frames += 1
         if (time() - start_fps) > 1:
@@ -104,7 +108,8 @@ def main(stdscr):
             frames = 0
             start_fps = time()
 
-        game.tick(key)
+        if not pause:
+            game.tick(key)
 
         render_game(game_win, game)
         render_info(info_win, game, fps_counter, key)
@@ -119,7 +124,6 @@ def main(stdscr):
     # Game over
     stdscr.addstr(9, 5, "GAME OVER!")
     stdscr.addstr(10, 5, "Press enter")
-    stdscr.nodelay(False)
     key = stdscr.getch()
     while key != 10:
         key = stdscr.getch()
