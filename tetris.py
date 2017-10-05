@@ -84,12 +84,16 @@ class Game:
     def _handle_drop(self, key, tetromino_clone):
         if key == 'KEY_DOWN':
             tetromino_clone.position_y += 1
+            if self._can_move(tetromino_clone):
+                self.active_tetromino = tetromino_clone
+                self.score += 1
         elif key == ' ':
+            start = tetromino_clone.position_y
             self._move_to_bottom(tetromino_clone)
-        else:
-            return
-        if self._can_move(tetromino_clone):
-            self.active_tetromino = tetromino_clone
+            if self._can_move(tetromino_clone):
+                self.active_tetromino = tetromino_clone
+                end = tetromino_clone.position_y
+                self.score += 2 * (end - start)
 
     def _wall_kick(self, tetromino_clone):
         tetromino_clone.position_x += 1
