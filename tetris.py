@@ -68,6 +68,8 @@ class Game:
             return
         if self._can_move(tetromino_clone):
             self.active_tetromino = tetromino_clone
+        else:
+            self._wall_kick(tetromino_clone)
 
     def _handle_shift(self, key, tetromino_clone):
         if key == 'KEY_LEFT':
@@ -86,6 +88,16 @@ class Game:
             self._move_to_bottom(tetromino_clone)
         else:
             return
+        if self._can_move(tetromino_clone):
+            self.active_tetromino = tetromino_clone
+
+    def _wall_kick(self, tetromino_clone):
+        tetromino_clone.position_x += 1
+        if self._can_move(tetromino_clone):
+            self.active_tetromino = tetromino_clone
+            return
+
+        tetromino_clone.position_x -= 2
         if self._can_move(tetromino_clone):
             self.active_tetromino = tetromino_clone
 
