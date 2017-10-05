@@ -55,20 +55,37 @@ class Game:
 
     def _handle_input(self, key):
         tetromino_clone = deepcopy(self.active_tetromino)  # type: Tetromino
+        self._handle_shift(key, tetromino_clone)
+        self._handle_drop(key, tetromino_clone)
+        self._handle_rotation(key, tetromino_clone)
+
+    def _handle_rotation(self, key, tetromino_clone):
+        if key == 'z':
+            tetromino_clone.rotate_counter_clockwise()
+        elif key == 'x':
+            tetromino_clone.rotate_clockwise()
+        else:
+            return
+        if self._can_move(tetromino_clone):
+            self.active_tetromino = tetromino_clone
+
+    def _handle_shift(self, key, tetromino_clone):
         if key == 'KEY_LEFT':
             tetromino_clone.position_x -= 1
         elif key == 'KEY_RIGHT':
             tetromino_clone.position_x += 1
-        elif key == 'KEY_DOWN':
+        else:
+            return
+        if self._can_move(tetromino_clone):
+            self.active_tetromino = tetromino_clone
+
+    def _handle_drop(self, key, tetromino_clone):
+        if key == 'KEY_DOWN':
             tetromino_clone.position_y += 1
         elif key == ' ':
             self._move_to_bottom(tetromino_clone)
-
-        # TODO wall kick
-        elif key == 'z':
-            tetromino_clone.rotate_counter_clockwise()
-        elif key == 'x':
-            tetromino_clone.rotate_clockwise()
+        else:
+            return
         if self._can_move(tetromino_clone):
             self.active_tetromino = tetromino_clone
 
