@@ -37,7 +37,8 @@ def render_game(game_win, game):
             for i in range(block_width):
                 game_win.insch(y, 2 * x + i, ' ', curses.color_pair(color + 1))
 
-    render_tetromino(game_win, game.ghost())
+    if not game.is_game_over:
+        render_tetromino(game_win, game.ghost())
     render_tetromino(game_win, game.active_tetromino)
 
 
