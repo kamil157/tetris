@@ -12,9 +12,9 @@ Playfield = List[List[int]]
 class Game:
     def __init__(self):
         self._tetromino_factory = TetrominoFactory()  # type: TetrominoFactory
-        self._game_time = 0  # type: int
-        self._gravity = 60  # type: int
-        self._next_gravity = self._game_time + self._gravity  # type: int
+        self._gravity_delay = 60
+        self._gravity = 30  # type: int
+        self._gravity_countdown = self._gravity + self._gravity_delay  # type: int
 
         self.playfield = [num_cols * [0] for _ in range(num_rows)]  # type: Playfield
         self.active_tetromino = self._tetromino_factory.create()  # type: Tetromino
@@ -34,15 +34,15 @@ class Game:
         return clone
 
     def tick(self, key):
-        self._game_time += 1
+        self._gravity_countdown -= 1
         self._handle_input(key)
 
         clone = deepcopy(self.active_tetromino)  # type: Tetromino
         clone.position_y += 1
         if self._can_move(clone):
-            if self._game_time >= self._next_gravity:
+            if self._gravity_countdown == 0:
                 self.active_tetromino = clone
-                self._next_gravity += self._gravity
+                self._gravity_countdown = self._gravity
         else:
             self._land_tetromino()
             if any(self.playfield[0]):
@@ -51,6 +51,7 @@ class Game:
             self._clear_lines()
             self.active_tetromino = self._tetromino_factory.create()
             self.next_tetromino = self._tetromino_factory.next()
+            self._gravity_countdown = self._gravity + self._gravity_delay
 
     def _handle_input(self, key):
         tetromino_clone = deepcopy(self.active_tetromino)  # type: Tetromino
