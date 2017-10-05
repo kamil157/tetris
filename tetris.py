@@ -8,6 +8,7 @@ num_cols = 10  # type: int
 
 Playfield = List[List[int]]
 
+
 class Game:
     def __init__(self):
         self._tetromino_factory = TetrominoFactory()  # type: TetrominoFactory
@@ -20,6 +21,17 @@ class Game:
         self.next_tetromino = self._tetromino_factory.next()  # type: Tetromino
         self.is_game_over = False  # type: bool
         self.score = 0  # type: int
+
+    def move_to_bottom(self, tetromino):
+        while self._can_move(tetromino):
+            tetromino.position_y += 1
+        tetromino.position_y -= 1
+
+    def ghost(self):
+        clone = deepcopy(self.active_tetromino)  # type: Tetromino
+        self.move_to_bottom(clone)
+        clone.color = 8
+        return clone
 
     def tick(self, key):
         self._game_time += 1
@@ -49,9 +61,7 @@ class Game:
         elif key == 'KEY_DOWN':
             tetromino_clone.position_y += 1
         elif key == ' ':
-            while self._can_move(tetromino_clone):
-                tetromino_clone.position_y += 1
-            tetromino_clone.position_y -= 1
+            self.move_to_bottom(tetromino_clone)
 
         # TODO wall kick
         elif key == 'z':

@@ -13,7 +13,10 @@ block_width = 2
 def render_tetromino(stdscr, tetromino):
     for y, x in tetromino:
         for i in range(block_width):
-            stdscr.addstr(y, 2 * x + i, ' ', curses.color_pair(tetromino.color + 1))
+            try:
+                stdscr.addstr(y, 2 * x + i, ' ', curses.color_pair(tetromino.color + 1))
+            except curses.error:
+                pass  # ignore errors, caused by drawing in the last tile or by bugs
 
 
 def repaint(func):
@@ -33,6 +36,7 @@ def render_game(game_win, game):
             for i in range(block_width):
                 game_win.insch(y, 2 * x + i, ' ', curses.color_pair(color + 1))
 
+    render_tetromino(game_win, game.ghost())
     render_tetromino(game_win, game.active_tetromino)
 
 
@@ -63,8 +67,12 @@ def main(stdscr):
         color_orange = 166
         curses.init_pair(6, curses.COLOR_WHITE, color_orange)  # L
 
+        color_gray = 250
+        curses.init_pair(9, curses.COLOR_WHITE, color_gray)  # ghost
+
     except curses.error:
         curses.init_pair(6, curses.COLOR_WHITE, curses.COLOR_BLACK)  # L
+        curses.init_pair(9, curses.COLOR_WHITE, curses.COLOR_BLACK)  # ghost
 
     curses.curs_set(False)
     stdscr.nodelay(True)
