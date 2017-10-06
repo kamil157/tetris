@@ -52,13 +52,17 @@ class Game:
 
         if self._lock_countdown == 0:
             self._land_tetromino()
-            if any(self.playfield[0]):
-                self.is_game_over = True
-                return
             self._clear_lines()
             self.active_tetromino = self._tetromino_factory.create()
             self.next_tetromino = self._tetromino_factory.next()
             self._gravity_countdown = self._gravity + self._gravity_delay
+
+            if self._game_over_condition():
+                self.is_game_over = True
+
+    def _game_over_condition(self):
+        return any(y >= 0 and self.playfield[y][x] > 0
+                   for y, x in self.active_tetromino)
 
     def _refresh_lock(self):
         clone = deepcopy(self.active_tetromino)  # type: Tetromino
