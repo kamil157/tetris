@@ -150,4 +150,4 @@ class Game:
 
         # Shift lines
         for line in lines_cleared:
-            self.playfield = [num_cols * [0]] + self.playfield[:line] + self.playfield[line + 1:]
+            self.playfield[:line + 1:] = [num_cols * [0]] + self.playfield[:line]
