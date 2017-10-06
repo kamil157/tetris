@@ -140,13 +140,10 @@ class Game:
 
     def _clear_lines(self):
         lines_cleared = [y for y, row in enumerate(self.playfield) if all(row)]
-        if not lines_cleared:
-            return
 
-        score_table = [100, 300, 500, 800]
-        self.score += score_table[len(lines_cleared) - 1]
+        score_table = [0, 100, 300, 500, 800]
+        self.score += score_table[len(lines_cleared)]
 
         # Shift lines
-        self.playfield = [num_cols * [0] for _ in range(len(lines_cleared))] \
-                         + self.playfield[:min(lines_cleared)] \
-                         + self.playfield[max(lines_cleared) + 1:]
+        for line in lines_cleared:
+            self.playfield = [num_cols * [0]] + self.playfield[:line] + self.playfield[line + 1:]
