@@ -26,7 +26,7 @@ class Game:
         self.next_tetromino = self._tetromino_factory.next()  # type: Tetromino
         self.is_game_over = False  # type: bool
         self.score = 0  # type: int
-        self.level = 1
+        self.level = 0
         self.lines = 0
 
     def _move_to_bottom(self, tetromino):
@@ -63,8 +63,8 @@ class Game:
         if self._lock_countdown == 0:
             self._land_tetromino()
             self._clear_lines()
-            self.level = (self.lines // self._lines_per_level) + 1
-            self._gravity = max(1, int(self._initial_gravity - self._gravity_per_level * (self.level - 1)))
+            self.level = self.lines // self._lines_per_level
+            self._gravity = max(1, int(self._initial_gravity - self._gravity_per_level * self.level))
             self.active_tetromino = self._tetromino_factory.create()
             self.next_tetromino = self._tetromino_factory.next()
             self._gravity_countdown = self._gravity + self._gravity_delay
