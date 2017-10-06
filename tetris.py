@@ -29,6 +29,11 @@ class Game:
             tetromino.position_y += 1
         tetromino.position_y -= 1
 
+    def debug(self):
+        return {'Gravity': self._gravity,
+                'Gravity cd': self._gravity_countdown,
+                'Lock cd': self._lock_countdown}
+
     def ghost(self):
         clone = deepcopy(self.active_tetromino)  # type: Tetromino
         self._move_to_bottom(clone)

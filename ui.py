@@ -43,16 +43,22 @@ def render_game(game_win, game):
 
 
 @repaint
-def render_info(info_win, game, fps_counter, key):
-    info_win.addstr(0, 0, "Fps: {}".format(fps_counter))
-    info_win.addstr(1, 0, "Key: {}".format(key))
-    info_win.addstr(2, 0, "Score: {}".format(game.score))
-    info_win.addstr(3, 0, "Next:")
+def render_info(info_win, game):
+    info_win.addstr(0, 0, "Score: {}".format(game.score))
+    info_win.addstr(1, 0, "Next:")
 
     next_tetromino = deepcopy(game.next_tetromino)
-    next_tetromino.position_y = 4
+    next_tetromino.position_y = 2
     next_tetromino.position_x = 0
     render_tetromino(info_win, next_tetromino)
+
+
+@repaint
+def render_debug(info_win, game, fps_counter, key):
+    info_win.addstr(0, 0, "Fps: {}".format(fps_counter))
+    info_win.addstr(1, 0, "Key: {}".format(key))
+    for i, (k, v) in enumerate(game.debug().items(), start=2):
+        info_win.addstr(i, 0, "{}: {}".format(k, v))
 
 
 def main(stdscr):
@@ -86,9 +92,11 @@ def main(stdscr):
     fps_counter = 0
 
     game_win = curses.newwin(num_rows, block_width * num_cols, 0, 0)
-    info_win = curses.newwin(num_rows, 20, 0, block_width * num_cols)
+    info_win = curses.newwin(10, 20, 0, block_width * num_cols)
+    debug_win = curses.newwin(10, 20, 10, block_width * num_cols)
 
     pause = False
+    debug = False
     while True:
         frame_start = time()
 
@@ -102,6 +110,11 @@ def main(stdscr):
         if key == 'p':
             pause = not pause
 
+        if key == 'd':
+            debug = not debug
+            debug_win.clear()
+            debug_win.refresh()
+
         # Update fps counter
         frames += 1
         if (time() - start_fps) > 1:
@@ -113,7 +126,9 @@ def main(stdscr):
             game.tick(key)
 
         render_game(game_win, game)
-        render_info(info_win, game, fps_counter, key)
+        render_info(info_win, game)
+        if debug:
+            render_debug(debug_win, game, fps_counter, key)
 
         sleep_time = frame_start + 1 / desired_fps - time()
         if sleep_time > 0:
