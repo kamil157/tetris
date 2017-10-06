@@ -98,11 +98,18 @@ class Game:
             tetromino_clone.rotate_clockwise()
         else:
             return
-        if self._can_move(tetromino_clone):
-            self.active_tetromino = tetromino_clone
-            self._refresh_lock()
-        else:
-            self._wall_kick(tetromino_clone)
+        self._wall_kick(tetromino_clone)
+
+    def _wall_kick(self, rotated_tetromino):
+        wall_kicks_x = [0, 1, -1]
+        for x in wall_kicks_x:
+            clone = deepcopy(rotated_tetromino)  # type: Tetromino
+            clone.position_x += x
+
+            if self._can_move(clone):
+                self.active_tetromino = clone
+                self._refresh_lock()
+                return
 
     def _handle_shift(self, key, tetromino_clone):
         if key == 'KEY_LEFT':
@@ -129,18 +136,6 @@ class Game:
                 end = tetromino_clone.position_y
                 self.score += 2 * (end - start)
                 self._lock_countdown = 0
-
-    def _wall_kick(self, tetromino_clone):
-        tetromino_clone.position_x += 1
-        if self._can_move(tetromino_clone):
-            self.active_tetromino = tetromino_clone
-            self._refresh_lock()
-            return
-
-        tetromino_clone.position_x -= 2
-        if self._can_move(tetromino_clone):
-            self.active_tetromino = tetromino_clone
-            self._refresh_lock()
 
     def _land_tetromino(self):
         for y, x in self.active_tetromino:
