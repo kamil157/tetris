@@ -64,38 +64,21 @@ def render_debug(info_win, game, fps_counter, key):
 
 
 def main(stdscr):
-    curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE)
-    curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_CYAN)  # I
-    curses.init_pair(3, curses.COLOR_WHITE, curses.COLOR_YELLOW)  # O
-    curses.init_pair(4, curses.COLOR_WHITE, curses.COLOR_MAGENTA)  # T
-    curses.init_pair(5, curses.COLOR_WHITE, curses.COLOR_BLUE)  # J
-
-    curses.init_pair(7, curses.COLOR_WHITE, curses.COLOR_GREEN)  # S
-    curses.init_pair(8, curses.COLOR_WHITE, curses.COLOR_RED)  # Z
-
-    try:
-        color_orange = 166
-        curses.init_pair(6, curses.COLOR_WHITE, color_orange)  # L
-
-        color_gray = 250
-        curses.init_pair(9, curses.COLOR_WHITE, color_gray)  # ghost
-
-    except curses.error:
-        curses.init_pair(6, curses.COLOR_WHITE, curses.COLOR_BLACK)  # L
-        curses.init_pair(9, curses.COLOR_WHITE, curses.COLOR_BLACK)  # ghost
+    init_colors()
 
     curses.curs_set(False)
     stdscr.nodelay(True)
+
+    game_win = curses.newwin(num_rows, block_width * num_cols, 0, 0)
+    info_win = curses.newwin(10, 20, 0, block_width * num_cols)
+    debug_win = curses.newwin(10, 20, 10, block_width * num_cols)
+
     game = Game()
 
     desired_fps = 60
     start_fps = time()
     frames = 0
     fps_counter = 0
-
-    game_win = curses.newwin(num_rows, block_width * num_cols, 0, 0)
-    info_win = curses.newwin(10, 20, 0, block_width * num_cols)
-    debug_win = curses.newwin(10, 20, 10, block_width * num_cols)
 
     pause = False
     debug = False
@@ -139,7 +122,10 @@ def main(stdscr):
         if game.is_game_over:
             break
 
-    # Game over
+    show_game_over(game, stdscr)
+
+
+def show_game_over(game, stdscr):
     stdscr.addstr(8, 4, "GAME OVER!!")
     stdscr.addstr(9, 4, "Your score:")
     stdscr.addstr(10, 4, "{:^11}".format(game.score))
@@ -147,6 +133,26 @@ def main(stdscr):
     key = stdscr.getch()
     while key != 10:
         key = stdscr.getch()
+
+
+def init_colors():
+    curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE)
+    curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_CYAN)  # I
+    curses.init_pair(3, curses.COLOR_WHITE, curses.COLOR_YELLOW)  # O
+    curses.init_pair(4, curses.COLOR_WHITE, curses.COLOR_MAGENTA)  # T
+    curses.init_pair(5, curses.COLOR_WHITE, curses.COLOR_BLUE)  # J
+    curses.init_pair(7, curses.COLOR_WHITE, curses.COLOR_GREEN)  # S
+    curses.init_pair(8, curses.COLOR_WHITE, curses.COLOR_RED)  # Z
+    try:
+        color_orange = 166
+        curses.init_pair(6, curses.COLOR_WHITE, color_orange)  # L
+
+        color_gray = 250
+        curses.init_pair(9, curses.COLOR_WHITE, color_gray)  # ghost
+
+    except curses.error:
+        curses.init_pair(6, curses.COLOR_WHITE, curses.COLOR_BLACK)  # L
+        curses.init_pair(9, curses.COLOR_WHITE, curses.COLOR_BLACK)  # ghost
 
 
 if __name__ == '__main__':
