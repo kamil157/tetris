@@ -45,10 +45,12 @@ def render_game(game_win, game):
 @repaint
 def render_info(info_win, game):
     info_win.addstr(0, 0, "Score: {}".format(game.score))
-    info_win.addstr(1, 0, "Next:")
+    info_win.addstr(1, 0, "Lines: {}".format(game.lines))
+    info_win.addstr(2, 0, "Level: {}".format(game.level))
+    info_win.addstr(3, 0, "Next:")
 
     next_tetromino = deepcopy(game.next_tetromino)
-    next_tetromino.position_y = 2
+    next_tetromino.position_y = 4
     next_tetromino.position_x = 0
     render_tetromino(info_win, next_tetromino)
 
