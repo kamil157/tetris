@@ -1,12 +1,9 @@
 from copy import deepcopy
-from typing import List
 
 from tetromino import Tetromino, TetrominoFactory
 
 num_rows = 20  # type: int
 num_cols = 10  # type: int
-
-Playfield = List[List[int]]
 
 
 class Game:
@@ -21,7 +18,7 @@ class Game:
         self._lock_delay = 30
         self._lock_countdown = 0
 
-        self.playfield = [num_cols * [0] for _ in range(num_rows)]  # type: Playfield
+        self.playfield = [num_cols * [0] for _ in range(num_rows)]
         self.active_tetromino = self._tetromino_factory.create()  # type: Tetromino
         self.next_tetromino = self._tetromino_factory.next()  # type: Tetromino
         self.is_game_over = False  # type: bool
