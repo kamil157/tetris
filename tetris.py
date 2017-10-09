@@ -83,7 +83,7 @@ class Game:
             self._lock_countdown = -1
         else:
             self._lock_countdown = self._lock_delay
-        self._gravity_countdown = self._gravity
+            self._gravity_countdown = self._gravity
 
     def _handle_input(self, key):
         tetromino_clone = deepcopy(self.active_tetromino)  # type: Tetromino
