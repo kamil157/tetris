@@ -1,6 +1,8 @@
 from copy import deepcopy
 from random import shuffle
 
+invisible_rows = 20
+
 
 class Tetromino:
     def __init__(self, shape, position_x, position_y, color):
@@ -31,42 +33,42 @@ class TetrominoFactory:
             [1, 1, 1, 1],
             [0, 0, 0, 0],
             [0, 0, 0, 0],
-        ], 3, -1, 1)
+        ], 3, invisible_rows - 1, 1)
 
         O = Tetromino([
             [1, 1],
             [1, 1],
-        ], 4, -1, 2)
+        ], 4, invisible_rows - 1, 2)
 
         T = Tetromino([
             [0, 1, 0],
             [1, 1, 1],
             [0, 0, 0],
-        ], 3, -1, 3)
+        ], 3, invisible_rows - 1, 3)
 
         J = Tetromino([
             [1, 0, 0],
             [1, 1, 1],
             [0, 0, 0],
-        ], 3, -1, 4)
+        ], 3, invisible_rows - 1, 4)
 
         L = Tetromino([
             [0, 0, 1],
             [1, 1, 1],
             [0, 0, 0],
-        ], 3, -1, 5)
+        ], 3, invisible_rows - 1, 5)
 
         S = Tetromino([
             [0, 1, 1],
             [1, 1, 0],
             [0, 0, 0],
-        ], 3, -1, 6)
+        ], 3, invisible_rows - 1, 6)
 
         Z = Tetromino([
             [1, 1, 0],
             [0, 1, 1],
             [0, 0, 0],
-        ], 3, -1, 7)
+        ], 3, invisible_rows - 1, 7)
 
         self.tetrominos = [
             I, O, T, J, L, S, Z

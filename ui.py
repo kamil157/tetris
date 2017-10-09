@@ -5,19 +5,18 @@ from time import sleep, time
 
 from copy import deepcopy
 
-from tetris import Game, num_cols, num_rows
+from tetris import Game, num_cols, visible_rows, invisible_rows
 
 block_width = 2
 
 
 def render_tetromino(stdscr, tetromino):
     for y, x in tetromino:
-        if y >= 0:
-            for i in range(block_width):
-                try:
-                    stdscr.addstr(y, 2 * x + i, ' ', curses.color_pair(tetromino.color + 1))
-                except curses.error:
-                    pass  # ignore errors, caused by drawing in the last tile or by bugs
+        for i in range(block_width):
+            try:
+                stdscr.addstr(y - invisible_rows, 2 * x + i, ' ', curses.color_pair(tetromino.color + 1))
+            except curses.error:
+                pass  # ignore errors, caused by drawing in the last tile or by bugs
 
 
 def repaint(func):
@@ -32,7 +31,7 @@ def repaint(func):
 
 @repaint
 def render_game(game_win, game):
-    for y, row in enumerate(game.playfield):
+    for y, row in enumerate(game.playfield[invisible_rows:]):
         for x, color in enumerate(row):
             for i in range(block_width):
                 game_win.insch(y, 2 * x + i, ' ', curses.color_pair(color + 1))
@@ -50,7 +49,7 @@ def render_info(info_win, game):
     info_win.addstr(3, 0, "Next:")
 
     next_tetromino = deepcopy(game.next_tetromino)
-    next_tetromino.position_y = 4
+    next_tetromino.position_y = invisible_rows + 4
     next_tetromino.position_x = 0
     render_tetromino(info_win, next_tetromino)
 
@@ -69,7 +68,7 @@ def main(stdscr):
     curses.curs_set(False)
     stdscr.nodelay(True)
 
-    game_win = curses.newwin(num_rows, block_width * num_cols, 0, 0)
+    game_win = curses.newwin(visible_rows, block_width * num_cols, 0, 0)
     info_win = curses.newwin(10, 20, 0, block_width * num_cols)
     debug_win = curses.newwin(10, 20, 10, block_width * num_cols)
 

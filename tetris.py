@@ -2,7 +2,9 @@ from copy import deepcopy
 
 from tetromino import Tetromino, TetrominoFactory
 
-num_rows = 20  # type: int
+invisible_rows = 20  # type: int
+visible_rows = 20  # type: int
+total_rows = invisible_rows + visible_rows
 num_cols = 10  # type: int
 
 
@@ -18,7 +20,7 @@ class Game:
         self._lock_delay = 30
         self._lock_countdown = 0
 
-        self.playfield = [num_cols * [0] for _ in range(num_rows)]
+        self.playfield = [num_cols * [0] for _ in range(total_rows)]
         self.active_tetromino = self._tetromino_factory.create()  # type: Tetromino
         self.next_tetromino = self._tetromino_factory.next()  # type: Tetromino
         self.is_game_over = False  # type: bool
@@ -70,8 +72,7 @@ class Game:
                 self.is_game_over = True
 
     def _game_over_condition(self):
-        return any(y >= 0 and self.playfield[y][x] > 0
-                   for y, x in self.active_tetromino)
+        return any(self.playfield[y][x] > 0 for y, x in self.active_tetromino)
 
     def _refresh_lock(self):
         clone = deepcopy(self.active_tetromino)  # type: Tetromino
@@ -136,15 +137,14 @@ class Game:
 
     def _land_tetromino(self):
         for y, x in self.active_tetromino:
-            if y >= 0:
-                self.playfield[y][x] = self.active_tetromino.color
+            self.playfield[y][x] = self.active_tetromino.color
 
     def _can_move(self, tetromino):
         return all(self._can_be_placed(y, x) for y, x in tetromino)
 
     def _can_be_placed(self, y, x):
-        # Check if position is inside visible playfield and doesn't collide with anything
-        return 0 <= x < num_cols and y < num_rows and (y < 0 or self.playfield[y][x] == 0)
+        # Check if position is inside playfield and doesn't collide with anything
+        return 0 <= x < num_cols and y < total_rows and self.playfield[y][x] == 0
 
     def _clear_lines(self):
         lines_cleared = [y for y, row in enumerate(self.playfield) if all(row)]
