@@ -134,11 +134,10 @@ class Tetris:
         elif key == ' ':
             start = tetromino_clone.position_y
             self._move_to_bottom(tetromino_clone)
-            if self._is_position_legal(tetromino_clone):
-                self.active_tetromino = tetromino_clone
-                end = tetromino_clone.position_y
-                self.score += 2 * (end - start)
-                self._lock_countdown = 0
+            self.active_tetromino = tetromino_clone
+            end = tetromino_clone.position_y
+            self.score += 2 * (end - start)
+            self._lock_countdown = 0
 
     def _lock_tetromino(self):
         """Lock tetromino on the playfield."""
