@@ -12,14 +12,17 @@ class Tetromino:
         self.color = color
 
     def rotate_clockwise(self):
+        """Rotate tetromino clockwise in place."""
         self.shape.reverse()
         self.shape = list(zip(*self.shape))
 
     def rotate_counter_clockwise(self):
+        """Rotate tetromino counter-clockwise in place."""
         self.shape = list(zip(*self.shape))
         self.shape.reverse()
 
     def __iter__(self):
+        """Return iterator of (y, x) coordinates of occupied fields."""
         return ((y + self.position_y, x + self.position_x)
                 for y, row in enumerate(self.shape)
                 for x, field in enumerate(row)
@@ -77,14 +80,17 @@ class TetrominoFactory:
         self.bag = []
 
     def _refill_bag(self):
+        """Refill the tetromino bag if it's empty."""
         if not self.bag:
             self.bag = deepcopy(self.tetrominos)
             shuffle(self.bag)
 
     def create(self):
+        """Draw a tetromino from the bag. Refill if needed."""
         self._refill_bag()
         return self.bag.pop()
 
     def next(self):
+        """Peek a tetromino from the bag. Refill if needed."""
         self._refill_bag()
         return self.bag[-1]

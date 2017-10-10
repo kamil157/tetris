@@ -10,6 +10,7 @@ desired_fps = 60
 
 
 def init_colors():
+    """Initialise curses color pairs."""
     curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE)  # Empty space on playfield
     curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_CYAN)  # I
     curses.init_pair(3, curses.COLOR_WHITE, curses.COLOR_YELLOW)  # O
@@ -30,6 +31,7 @@ def init_colors():
 
 
 def render_tetromino(window, tetromino):
+    """Render tetromino at its position."""
     for y, x in tetromino:
         for i in range(block_width):
             try:
@@ -56,27 +58,32 @@ class Game:
         self.start_fps_timer = 0
 
     def init_curses(self):
+        """Initialise curses settings."""
         init_colors()
         curses.curs_set(False)
         self.stdscr.nodelay(True)
 
     def get_user_input(self):
+        """Get user input if available."""
         try:
             return self.stdscr.getkey()
         except curses.error:
             return None
 
     def handle_pause(self, key):
+        """Pause/unpause the game."""
         if key == 'p':
             self.pause = not self.pause
 
     def handle_debug(self, key):
+        """Toggle debug window visibility."""
         if key == 'd':
             self.debug = not self.debug
             self.debug_win.clear()
             self.debug_win.refresh()
 
     def update_fps_counter(self):
+        """Update fps counter during this second."""
         self.frames_this_second += 1
         if (time() - self.start_fps_timer) > 1:
             self.fps_counter = round(self.frames_this_second / (time() - self.start_fps_timer))
@@ -84,6 +91,7 @@ class Game:
             self.start_fps_timer = time()
 
     def render_game(self):
+        """Render game window, including playfield, active tetromino and ghost."""
         self.game_win.clear()
         for y, row in enumerate(self.tetris.playfield[invisible_rows:]):
             for x, color in enumerate(row):
@@ -96,6 +104,7 @@ class Game:
         self.game_win.refresh()
 
     def render_info(self):
+        """Render info window, showing game stats."""
         self.info_win.clear()
         self.info_win.addstr(0, 0, "Score: {}".format(self.tetris.score))
         self.info_win.addstr(1, 0, "Lines: {}".format(self.tetris.lines))
@@ -109,6 +118,7 @@ class Game:
         self.info_win.refresh()
 
     def render_debug(self, key):
+        """Render debug window."""
         self.debug_win.clear()
         self.debug_win.addstr(0, 0, "Fps: {}".format(self.fps_counter))
         self.debug_win.addstr(1, 0, "Key: {}".format(key))
@@ -117,6 +127,7 @@ class Game:
         self.debug_win.refresh()
 
     def show_game_over(self):
+        """Show game over screen."""
         self.stdscr.addstr(8, 4, "GAME OVER!!")
         self.stdscr.addstr(9, 4, "Your score:")
         self.stdscr.addstr(10, 4, "{:^11}".format(self.tetris.score))
@@ -126,6 +137,7 @@ class Game:
             key = self.stdscr.getch()
 
     def run(self):
+        """Run the game loop."""
         self.start_fps_timer = time()
         while not self.tetris.is_game_over:
             frame_start = time()
@@ -151,6 +163,7 @@ class Game:
 
 
 def main(stdscr):
+    """Run the game."""
     game = Game(stdscr)
     game.run()
 
