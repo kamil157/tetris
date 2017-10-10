@@ -6,6 +6,7 @@ from time import sleep, time
 from tetris import Tetris, num_cols, visible_rows, invisible_rows
 
 block_width = 2
+desired_fps = 60
 
 
 def init_colors():
@@ -28,11 +29,11 @@ def init_colors():
         curses.init_pair(9, curses.COLOR_WHITE, curses.COLOR_BLACK)  # ghost
 
 
-def render_tetromino(stdscr, tetromino):
+def render_tetromino(window, tetromino):
     for y, x in tetromino:
         for i in range(block_width):
             try:
-                stdscr.addstr(y - invisible_rows, 2 * x + i, ' ', curses.color_pair(tetromino.color + 1))
+                window.addstr(y - invisible_rows, 2 * x + i, ' ', curses.color_pair(tetromino.color + 1))
             except curses.error:
                 pass  # ignore errors, caused by drawing in the last tile or by bugs
 
@@ -50,6 +51,10 @@ class Game:
         self.pause = False
         self.debug = False
 
+        self.fps_counter = 0
+        self.frames_this_second = 0
+        self.start_fps_timer = 0
+
     def init_curses(self):
         init_colors()
         curses.curs_set(False)
@@ -61,15 +66,22 @@ class Game:
         except curses.error:
             pass
 
+    def handle_pause(self, key):
+        if key == 'p':
+            self.pause = not self.pause
+
     def handle_debug(self, key):
         if key == 'd':
             self.debug = not self.debug
             self.debug_win.clear()
             self.debug_win.refresh()
 
-    def handle_pause(self, key):
-        if key == 'p':
-            self.pause = not self.pause
+    def update_fps_counter(self):
+        self.frames_this_second += 1
+        if (time() - self.start_fps_timer) > 1:
+            self.fps_counter = round(self.frames_this_second / (time() - self.start_fps_timer))
+            self.frames_this_second = 0
+            self.start_fps_timer = time()
 
     def render_game(self):
         self.game_win.clear()
@@ -96,9 +108,9 @@ class Game:
         render_tetromino(self.info_win, next_tetromino)
         self.info_win.refresh()
 
-    def render_debug(self, fps_counter, key):
+    def render_debug(self, key):
         self.debug_win.clear()
-        self.debug_win.addstr(0, 0, "Fps: {}".format(fps_counter))
+        self.debug_win.addstr(0, 0, "Fps: {}".format(self.fps_counter))
         self.debug_win.addstr(1, 0, "Key: {}".format(key))
         for i, (k, v) in enumerate(self.tetris.debug().items(), start=2):
             self.debug_win.addstr(i, 0, "{}: {}".format(k, v))
@@ -114,24 +126,14 @@ class Game:
             key = self.stdscr.getch()
 
     def run(self):
-        desired_fps = 60
-        start_fps = time()
-        frames = 0
-        fps_counter = 0
-
+        self.start_fps_timer = time()
         while not self.tetris.is_game_over:
             frame_start = time()
 
             key = self.get_user_input()
             self.handle_pause(key)
             self.handle_debug(key)
-
-            # Update fps counter
-            frames += 1
-            if (time() - start_fps) > 1:
-                fps_counter = round(frames / (time() - start_fps))
-                frames = 0
-                start_fps = time()
+            self.update_fps_counter()
 
             if not self.pause:
                 self.tetris.tick(key)
@@ -139,7 +141,7 @@ class Game:
             self.render_game()
             self.render_info()
             if self.debug:
-                self.render_debug(fps_counter, key)
+                self.render_debug(key)
 
             sleep_time = frame_start + 1 / desired_fps - time()
             if sleep_time > 0:
