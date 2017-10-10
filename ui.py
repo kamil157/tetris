@@ -1,141 +1,15 @@
 import curses
+from copy import deepcopy
 from curses import wrapper
-from functools import wraps
 from time import sleep, time
 
-from copy import deepcopy
-
-from tetris import Game, num_cols, visible_rows, invisible_rows
+from tetris import Tetris, num_cols, visible_rows, invisible_rows
 
 block_width = 2
 
 
-def render_tetromino(stdscr, tetromino):
-    for y, x in tetromino:
-        for i in range(block_width):
-            try:
-                stdscr.addstr(y - invisible_rows, 2 * x + i, ' ', curses.color_pair(tetromino.color + 1))
-            except curses.error:
-                pass  # ignore errors, caused by drawing in the last tile or by bugs
-
-
-def repaint(func):
-    @wraps(func)
-    def func_wrapper(window, *args, **kwargs):
-        window.clear()
-        func(window, *args, **kwargs)
-        window.refresh()
-
-    return func_wrapper
-
-
-@repaint
-def render_game(game_win, game):
-    for y, row in enumerate(game.playfield[invisible_rows:]):
-        for x, color in enumerate(row):
-            for i in range(block_width):
-                game_win.insch(y, 2 * x + i, ' ', curses.color_pair(color + 1))
-
-    if not game.is_game_over:
-        render_tetromino(game_win, game.ghost())
-    render_tetromino(game_win, game.active_tetromino)
-
-
-@repaint
-def render_info(info_win, game):
-    info_win.addstr(0, 0, "Score: {}".format(game.score))
-    info_win.addstr(1, 0, "Lines: {}".format(game.lines))
-    info_win.addstr(2, 0, "Level: {}".format(game.level))
-    info_win.addstr(3, 0, "Next:")
-
-    next_tetromino = deepcopy(game.next_tetromino)
-    next_tetromino.position_y = invisible_rows + 4
-    next_tetromino.position_x = 0
-    render_tetromino(info_win, next_tetromino)
-
-
-@repaint
-def render_debug(info_win, game, fps_counter, key):
-    info_win.addstr(0, 0, "Fps: {}".format(fps_counter))
-    info_win.addstr(1, 0, "Key: {}".format(key))
-    for i, (k, v) in enumerate(game.debug().items(), start=2):
-        info_win.addstr(i, 0, "{}: {}".format(k, v))
-
-
-def main(stdscr):
-    init_colors()
-
-    curses.curs_set(False)
-    stdscr.nodelay(True)
-
-    game_win = curses.newwin(visible_rows, block_width * num_cols, 0, 0)
-    info_win = curses.newwin(10, 20, 0, block_width * num_cols)
-    debug_win = curses.newwin(10, 20, 10, block_width * num_cols)
-
-    game = Game()
-
-    desired_fps = 60
-    start_fps = time()
-    frames = 0
-    fps_counter = 0
-
-    pause = False
-    debug = False
-    while True:
-        frame_start = time()
-
-        # Get user input
-        key = None
-        try:
-            key = stdscr.getkey()
-        except curses.error:
-            pass
-
-        if key == 'p':
-            pause = not pause
-
-        if key == 'd':
-            debug = not debug
-            debug_win.clear()
-            debug_win.refresh()
-
-        # Update fps counter
-        frames += 1
-        if (time() - start_fps) > 1:
-            fps_counter = round(frames / (time() - start_fps))
-            frames = 0
-            start_fps = time()
-
-        if not pause:
-            game.tick(key)
-
-        render_game(game_win, game)
-        render_info(info_win, game)
-        if debug:
-            render_debug(debug_win, game, fps_counter, key)
-
-        sleep_time = frame_start + 1 / desired_fps - time()
-        if sleep_time > 0:
-            sleep(sleep_time)
-
-        if game.is_game_over:
-            break
-
-    show_game_over(game, stdscr)
-
-
-def show_game_over(game, stdscr):
-    stdscr.addstr(8, 4, "GAME OVER!!")
-    stdscr.addstr(9, 4, "Your score:")
-    stdscr.addstr(10, 4, "{:^11}".format(game.score))
-    stdscr.addstr(11, 4, "Press enter")
-    key = stdscr.getch()
-    while key != 10:
-        key = stdscr.getch()
-
-
 def init_colors():
-    curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE)
+    curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_WHITE)  # Empty space on playfield
     curses.init_pair(2, curses.COLOR_WHITE, curses.COLOR_CYAN)  # I
     curses.init_pair(3, curses.COLOR_WHITE, curses.COLOR_YELLOW)  # O
     curses.init_pair(4, curses.COLOR_WHITE, curses.COLOR_MAGENTA)  # T
@@ -152,6 +26,131 @@ def init_colors():
     except curses.error:
         curses.init_pair(6, curses.COLOR_WHITE, curses.COLOR_BLACK)  # L
         curses.init_pair(9, curses.COLOR_WHITE, curses.COLOR_BLACK)  # ghost
+
+
+def render_tetromino(stdscr, tetromino):
+    for y, x in tetromino:
+        for i in range(block_width):
+            try:
+                stdscr.addstr(y - invisible_rows, 2 * x + i, ' ', curses.color_pair(tetromino.color + 1))
+            except curses.error:
+                pass  # ignore errors, caused by drawing in the last tile or by bugs
+
+
+class Game:
+    def __init__(self, stdscr):
+        self.stdscr = stdscr
+        self.init_curses()
+
+        self.game_win = curses.newwin(visible_rows, block_width * num_cols, 0, 0)
+        self.info_win = curses.newwin(10, 20, 0, block_width * num_cols)
+        self.debug_win = curses.newwin(10, 20, 10, block_width * num_cols)
+        self.tetris = Tetris()
+
+        self.pause = False
+        self.debug = False
+
+    def init_curses(self):
+        init_colors()
+        curses.curs_set(False)
+        self.stdscr.nodelay(True)
+
+    def get_user_input(self):
+        try:
+            return self.stdscr.getkey()
+        except curses.error:
+            pass
+
+    def handle_debug(self, key):
+        if key == 'd':
+            self.debug = not self.debug
+            self.debug_win.clear()
+            self.debug_win.refresh()
+
+    def handle_pause(self, key):
+        if key == 'p':
+            self.pause = not self.pause
+
+    def render_game(self):
+        self.game_win.clear()
+        for y, row in enumerate(self.tetris.playfield[invisible_rows:]):
+            for x, color in enumerate(row):
+                for i in range(block_width):
+                    self.game_win.insch(y, 2 * x + i, ' ', curses.color_pair(color + 1))
+
+        if not self.tetris.is_game_over:
+            render_tetromino(self.game_win, self.tetris.ghost())
+        render_tetromino(self.game_win, self.tetris.active_tetromino)
+        self.game_win.refresh()
+
+    def render_info(self):
+        self.info_win.clear()
+        self.info_win.addstr(0, 0, "Score: {}".format(self.tetris.score))
+        self.info_win.addstr(1, 0, "Lines: {}".format(self.tetris.lines))
+        self.info_win.addstr(2, 0, "Level: {}".format(self.tetris.level))
+        self.info_win.addstr(3, 0, "Next:")
+
+        next_tetromino = deepcopy(self.tetris.next_tetromino)
+        next_tetromino.position_y = invisible_rows + 4
+        next_tetromino.position_x = 0
+        render_tetromino(self.info_win, next_tetromino)
+        self.info_win.refresh()
+
+    def render_debug(self, fps_counter, key):
+        self.debug_win.clear()
+        self.debug_win.addstr(0, 0, "Fps: {}".format(fps_counter))
+        self.debug_win.addstr(1, 0, "Key: {}".format(key))
+        for i, (k, v) in enumerate(self.tetris.debug().items(), start=2):
+            self.debug_win.addstr(i, 0, "{}: {}".format(k, v))
+        self.debug_win.refresh()
+
+    def show_game_over(self):
+        self.stdscr.addstr(8, 4, "GAME OVER!!")
+        self.stdscr.addstr(9, 4, "Your score:")
+        self.stdscr.addstr(10, 4, "{:^11}".format(self.tetris.score))
+        self.stdscr.addstr(11, 4, "Press enter")
+        key = self.stdscr.getch()
+        while key != 10:
+            key = self.stdscr.getch()
+
+    def run(self):
+        desired_fps = 60
+        start_fps = time()
+        frames = 0
+        fps_counter = 0
+
+        while not self.tetris.is_game_over:
+            frame_start = time()
+
+            key = self.get_user_input()
+            self.handle_pause(key)
+            self.handle_debug(key)
+
+            # Update fps counter
+            frames += 1
+            if (time() - start_fps) > 1:
+                fps_counter = round(frames / (time() - start_fps))
+                frames = 0
+                start_fps = time()
+
+            if not self.pause:
+                self.tetris.tick(key)
+
+            self.render_game()
+            self.render_info()
+            if self.debug:
+                self.render_debug(fps_counter, key)
+
+            sleep_time = frame_start + 1 / desired_fps - time()
+            if sleep_time > 0:
+                sleep(sleep_time)
+
+        self.show_game_over()
+
+
+def main(stdscr):
+    game = Game(stdscr)
+    game.run()
 
 
 if __name__ == '__main__':

@@ -8,7 +8,7 @@ total_rows = invisible_rows + visible_rows
 num_cols = 10  # type: int
 
 
-class Game:
+class Tetris:
     def __init__(self):
         self._lines_per_level = 10
         self._tetromino_factory = TetrominoFactory()  # type: TetrominoFactory
