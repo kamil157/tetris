@@ -64,7 +64,7 @@ class Game:
         try:
             return self.stdscr.getkey()
         except curses.error:
-            pass
+            return None
 
     def handle_pause(self, key):
         if key == 'p':
