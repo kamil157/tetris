@@ -1,3 +1,5 @@
+from __future__ import division
+
 import curses
 from copy import deepcopy
 from curses import wrapper
