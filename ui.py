@@ -79,7 +79,7 @@ class Game:
         """Toggle debug window visibility."""
         if key == 'd':
             self.debug = not self.debug
-            self.debug_win.clear()
+            self.debug_win.erase()
             self.debug_win.refresh()
 
     def update_fps_counter(self):
@@ -92,7 +92,7 @@ class Game:
 
     def render_game(self):
         """Render game window, including playfield, active tetromino and ghost."""
-        self.game_win.clear()
+        self.game_win.erase()
         for y, row in enumerate(self.tetris.playfield[invisible_rows:]):
             for x, color in enumerate(row):
                 for i in range(block_width):
@@ -105,7 +105,7 @@ class Game:
 
     def render_info(self):
         """Render info window, showing game stats."""
-        self.info_win.clear()
+        self.info_win.erase()
         self.info_win.addstr(0, 0, "Score: {}".format(self.tetris.score))
         self.info_win.addstr(1, 0, "Lines: {}".format(self.tetris.lines))
         self.info_win.addstr(2, 0, "Level: {}".format(self.tetris.level))
@@ -119,7 +119,7 @@ class Game:
 
     def render_debug(self, key):
         """Render debug window."""
-        self.debug_win.clear()
+        self.debug_win.erase()
         self.debug_win.addstr(0, 0, "Fps: {}".format(self.fps_counter))
         self.debug_win.addstr(1, 0, "Key: {}".format(key))
         for i, (k, v) in enumerate(self.tetris.debug().items(), start=2):
