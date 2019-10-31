@@ -1,10 +1,10 @@
 Tetris 
 ======
-Tetris game in Python with ncurses based UI.
+CLI Tetris game in Python with ncurses based UI.
 
 Rules based on https://tetris.fandom.com/wiki/Tetris_Guideline.
 
-![Tetris](tetris.png?raw=true)
+![Gameplay](tetris.gif)
 
 Dependencies: 
 * ncurses
