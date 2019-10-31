@@ -4,7 +4,7 @@ Tetris game in Python with ncurses based UI.
 
 Rules based on https://tetris.fandom.com/wiki/Tetris_Guideline.
 
-[Tetris] (tetris.png?raw=true)
+[Tetris](tetris.png?raw=true)
 
 Dependencies: 
 * ncurses
